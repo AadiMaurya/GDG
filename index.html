@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SonicPro Ultra™ — Volume Adjustment Wizard</title>
+  <meta name="description" content="The world's most certified, bureaucratic, 7-step volume adjustment experience." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Ambient particles -->
+  <div id="particles-container"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="logo">
+      <span class="logo-icon">🔊</span>
+      <span class="logo-text">SonicPro <span class="logo-ultra">Ultra™</span></span>
+    </div>
+    <div class="header-badge">CERTIFIED WIZARD</div>
+  </header>
+
+  <!-- Main App -->
+  <main class="app-container">
+
+    <!-- Current Volume Display -->
+    <section class="volume-display-section">
+      <div class="volume-circle">
+        <div class="volume-circle-inner">
+          <div class="volume-icon" id="volumeIcon">🔇</div>
+          <div class="volume-number" id="volumeNumber">47</div>
+          <div class="volume-label">VOLUME</div>
+        </div>
+        <svg class="volume-ring" viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="85" class="ring-bg"/>
+          <circle cx="100" cy="100" r="85" class="ring-fill" id="ringFill"/>
+        </svg>
+      </div>
+      <div class="volume-warning" id="volumeWarning">⚠️ Volume adjustment pending 7-step certification</div>
+    </section>
+
+    <!-- Wizard Panel -->
+    <section class="panel">
+      <h2 class="panel-title">Volume Adjustment Wizard™</h2>
+      <p class="panel-subtitle">Please complete all 7 mandatory steps. No skipping. Ever.</p>
+
+      <!-- Progress -->
+      <div class="wizard-progress">
+        <div class="wizard-steps" id="wizardSteps">
+          <div class="wstep active" id="ws1">1</div>
+          <div class="wstep" id="ws2">2</div>
+          <div class="wstep" id="ws3">3</div>
+          <div class="wstep" id="ws4">4</div>
+          <div class="wstep" id="ws5">5</div>
+          <div class="wstep" id="ws6">6</div>
+          <div class="wstep" id="ws7">7</div>
+        </div>
+        <div class="wizard-progress-bar">
+          <div class="wizard-progress-fill" id="wizardProgressFill"></div>
+        </div>
+      </div>
+
+      <!-- Step Content -->
+      <div class="wizard-step-content" id="wizardContent"></div>
+
+      <!-- Navigation -->
+      <div class="action-row">
+        <button class="btn btn-ghost" id="wizardBack" onclick="wizardBack()" disabled>← Back</button>
+        <button class="btn btn-primary" id="wizardNext" onclick="wizardNext()">Next →</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- CAPTCHA MODAL -->
+  <div class="modal-overlay" id="captchaModal" style="display:none">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>🤖 Human Verification Required</h3>
+        <p>Before adjusting volume, please prove you are human.</p>
+      </div>
+      <div class="modal-body">
+        <div class="captcha-question" id="captchaQuestion"></div>
+        <input type="number" class="captcha-input" id="captchaInput" placeholder="Your answer..." />
+        <div class="captcha-error" id="captchaError" style="display:none">
+          ❌ Wrong! Try again. Attempts remaining: <span id="attemptsLeft">3</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" onclick="verifyCaptcha()">Verify</button>
+        <button class="btn btn-ghost" onclick="closeCaptcha()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EMAIL MODAL -->
+  <div class="modal-overlay" id="emailModal" style="display:none">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>📧 Verification Email Sent!</h3>
+      </div>
+      <div class="modal-body">
+        <div class="email-animation">✉️</div>
+        <p>A confirmation link has been sent to <strong>yourvolume@sonicpro.com</strong></p>
+        <p style="margin-top:0.5rem; color:var(--text-muted); font-size:0.82rem;">Please check your inbox and click the link to confirm this volume change. Check spam if not found.</p>
+        <div class="email-timer">Button unlocks in: <span id="emailTimerNum">30</span>s</div>
+        <div class="email-progress">
+          <div class="email-progress-fill" id="emailProgressFill"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="emailConfirmBtn" onclick="emailConfirm()" disabled>✅ I Confirmed in Email</button>
+        <button class="btn btn-ghost" onclick="closeEmail()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUCCESS MODAL -->
+  <div class="modal-overlay" id="successModal" style="display:none">
+    <div class="modal modal-success">
+      <div class="modal-header">
+        <h3>🎉 Volume Successfully Changed!</h3>
+      </div>
+      <div class="modal-body">
+        <div class="success-confetti" id="confettiContainer"></div>
+        <div class="success-volume">Volume is now: <strong id="successVolNum">50</strong></div>
+        <p style="color:var(--text-muted); font-size:0.82rem; margin-top:0.75rem; line-height:1.6;">
+          Note: Volume may drift slightly due to atmospheric conditions.<br>
+          To adjust again, please complete the wizard from Step 1.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" onclick="closeSuccess()">Start Over 🔁</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING OVERLAY -->
+  <div class="modal-overlay" id="loadingModal" style="display:none">
+    <div class="modal modal-loading">
+      <div class="loading-spinner"></div>
+      <div class="loading-text" id="loadingText">Processing your premium request...</div>
+      <div class="loading-sub" id="loadingSub">Please do not adjust your screen brightness.</div>
+    </div>
+  </div>
+
+  <!-- DRIFT TOAST -->
+  <div class="toast" id="driftToast" style="display:none">
+    📉 Volume drifting... recalibrating...
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
